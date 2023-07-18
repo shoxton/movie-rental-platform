@@ -18,9 +18,11 @@ class MoviesController < ApplicationController
   def rent
     user = User.find(params[:user_id])
     movie = Movie.find(params[:id])
-    movie.available_copies -= 1
-    movie.save
-    user.rented << movie
-    render json: movie
+    @rental = RentingService.new(user).new_rental(movie)
+    render json: @rental
+  rescue DomainException => e
+    render json: {
+      error: e.to_s
+    }, status: :bad_request
   end
 end
